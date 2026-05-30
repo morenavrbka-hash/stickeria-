@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSTUDIOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0d1f3c;
+    --navy-mid: #122352;
+    --navy-light: #1a3068;
+    --accent: #3a6fd8;
+    --white: #ffffff;
+    --off-white: #f5f5f3;
+    --text-muted: #8a9bc2;
+    --card-bg: #f7f7f5;
+    --max-w: 430px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--off-white); min-height: 100vh; display: flex; justify-content: center; }
+  .app { width: 100%; max-width: var(--max-w); min-height: 100vh; background: var(--off-white); position: relative; overflow-x: hidden; }
+
+  /* NAVBAR */
+  .navbar { position: sticky; top: 0; z-index: 100; background: var(--navy); display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; }
+  .nav-menu { cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
+  .nav-menu span { display: block; width: 24px; height: 2px; background: var(--white); border-radius: 2px; }
+  .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 4px; color: var(--white); text-decoration: none; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  .nav-logo .logo-sub { font-family: 'DM Sans', sans-serif; font-size: 7px; letter-spacing: 6px; color: var(--text-muted); font-weight: 300; }
+  .nav-icons { display: flex; gap: 16px; align-items: center; }
+  .nav-icons button { background: none; border: none; cursor: pointer; color: var(--white); padding: 0; position: relative; }
+  .nav-icons svg { width: 22px; height: 22px; stroke: var(--white); fill: none; stroke-width: 1.8; }
+  .cart-badge { position: absolute; top: -6px; right: -6px; background: var(--accent); color: var(--white); font-size: 10px; font-weight: 600; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+  /* HERO */
+  .hero { background: linear-gradient(175deg, #1a3a72 0%, #0d2050 40%, #091535 100%); padding: 0 0 30px 0; position: relative; overflow: hidden; }
+  .hero-placeholder { width: 100%; aspect-ratio: 4/3; background: linear-gradient(135deg, #1e4080 0%, #2a5aad 50%, #1a3270 100%); display: flex; align-items: center; justify-content: center; }
+  .hero-models { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: rgba(255,255,255,0.08); letter-spacing: 8px; user-select: none; }
+  .hero-text { padding: 20px 20px 0; }
+  .hero-tag { display: inline-block; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; }
+  .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 34px; color: var(--white); letter-spacing: 2px; line-height: 1.05; }
+
+  /* SECTION */
+  .section-header { padding: 28px 20px 16px; display: flex; align-items: baseline; justify-content: space-between; }
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--navy); }
+
+  /* PRODUCTS */
+  .products { padding: 0 14px 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .product-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; transition: transform 0.2s ease; box-shadow: 0 2px 8px rgba(13,31,60,0.06); }
+  .product-card:active { transform: scale(0.97); }
+  .product-img-wrap { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #e8e8e4; }
+  .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+  .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+  .product-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ddd 0%, #ccc 100%); }
+  .product-img-placeholder svg { width: 48px; height: 48px; stroke: #aaa; fill: none; }
+  .product-info { background: var(--navy); padding: 10px 12px 12px; border-radius: 0 0 16px 16px; }
+  .product-name { font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.75); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .product-price { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; color: var(--white); }
+  .product-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; gap: 6px; }
+  .qty-ctrl { display: flex; align-items: center; background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; }
+  .qty-btn { background: none; border: none; cursor: pointer; color: var(--white); font-size: 16px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .qty-btn:hover { background: rgba(255,255,255,0.15); }
+  .qty-num { font-size: 13px; font-weight: 600; color: var(--white); min-width: 20px; text-align: center; }
+  .add-btn { flex: 1; background: var(--accent); border: none; cursor: pointer; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; padding: 7px 8px; border-radius: 8px; transition: background 0.2s; white-space: nowrap; }
+  .add-btn:hover { background: #2d5cbf; }
+  .add-btn.added { background: #1a8c5b; }
+
+  /* DRAWER */
+  .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .drawer-overlay.open { opacity: 1; pointer-events: all; }
+  .drawer { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: var(--navy); z-index: 201; transform: translateX(-100%); transition: transform 0.3s ease; display: flex; flex-direction: column; }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head { background: var(--navy-mid); padding: 20px; display: flex; align-items: center; justify-content: space-between; }
+  .drawer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--white); }
+  .drawer-close { background: none; border: none; cursor: pointer; color: var(--white); font-size: 22px; }
+  .drawer-nav { padding: 20px 0; flex: 1; }
+  .drawer-nav a { display: flex; align-items: center; gap: 14px; padding: 14px 24px; color: rgba(255,255,255,0.75); text-decoration: none; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: all 0.2s; }
+  .drawer-nav a:hover { color: var(--white); background: rgba(255,255,255,0.05); padding-left: 30px; }
+  .drawer-nav a svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+
+  /* CART PANEL */
+  .cart-panel { position: fixed; top: 0; right: 0; width: min(340px, 100vw); height: 100vh; background: var(--white); z-index: 201; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0,0,0,0.15); }
+  .cart-panel.open { transform: translateX(0); }
+  .cart-head { background: var(--navy); padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .cart-head h2 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--white); }
+  .cart-close { background: none; border: none; cursor: pointer; color: var(--white); font-size: 22px; }
+  .cart-body { flex: 1; overflow-y: auto; padding: 16px; }
+  .cart-empty { text-align: center; padding: 60px 20px; color: #aaa; }
+  .cart-empty svg { width: 56px; height: 56px; stroke: #ddd; fill: none; margin-bottom: 12px; }
+  .cart-empty p { font-size: 14px; }
+  .cart-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+  .cart-item-img { width: 64px; height: 80px; border-radius: 10px; background: #eee; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .cart-item-img svg { width: 28px; height: 28px; stroke: #bbb; fill: none; }
+  .cart-item-info { flex: 1; }
+  .cart-item-name { font-size: 13px; font-weight: 500; color: var(--navy); margin-bottom: 3px; }
+  .cart-item-price { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--accent); letter-spacing: 0.5px; }
+  .cart-item-qty { display: flex; align-items: center; background: #f5f5f5; border-radius: 8px; overflow: hidden; margin-top: 8px; width: fit-content; }
+  .cart-item-qty button { background: none; border: none; cursor: pointer; color: var(--navy); font-size: 16px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+  .cart-item-qty button:hover { background: #ebebeb; }
+  .cart-item-qty span { font-size: 13px; font-weight: 600; min-width: 22px; text-align: center; color: var(--navy); }
+  .cart-remove { background: none; border: none; cursor: pointer; color: #ccc; font-size: 18px; align-self: flex-start; padding: 2px; transition: color 0.2s; }
+  .cart-remove:hover { color: #e05; }
+  .cart-foot { padding: 16px 20px; border-top: 1px solid #eee; background: #fafafa; }
+  .cart-subtotal { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .cart-subtotal span { font-size: 14px; color: #888; }
+  .cart-subtotal strong { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); letter-spacing: 1px; }
+  .checkout-btn { width: 100%; background: var(--navy); color: var(--white); border: none; cursor: pointer; font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 2px; padding: 15px; border-radius: 12px; transition: background 0.2s; }
+  .checkout-btn:hover { background: var(--navy-light); }
+
+  /* CHECKOUT FORM */
+  .form-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; display: none; align-items: flex-end; justify-content: center; }
+  .form-overlay.open { display: flex; }
+  .form-sheet { background: var(--white); width: min(430px, 100vw); max-height: 92vh; border-radius: 20px 20px 0 0; overflow-y: auto; padding: 24px 20px 32px; animation: slideUp 0.35s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .form-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 20px; }
+  .form-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--navy); margin-bottom: 4px; }
+  .form-subtitle { font-size: 13px; color: #888; margin-bottom: 22px; }
+  .form-order-summary { background: var(--navy); border-radius: 12px; padding: 14px 16px; margin-bottom: 22px; }
+  .form-order-summary p { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+  .form-order-items { font-size: 13px; color: var(--white); line-height: 1.7; }
+  .form-order-total { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.15); }
+  .form-order-total span { font-size: 13px; color: rgba(255,255,255,0.6); }
+  .form-order-total strong { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); letter-spacing: 1px; }
+
+  /* pago info box */
+  .pago-info { background: #f0f5ff; border: 1.5px solid #c5d5f5; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; }
+  .pago-info h4 { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--navy); margin-bottom: 10px; }
+  .pago-info p { font-size: 13px; color: #444; line-height: 1.6; }
+  .pago-info .pago-opcion { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #dce8ff; }
+  .pago-info .pago-opcion:last-child { border-bottom: none; padding-bottom: 0; }
+  .pago-icon { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+  .pago-detail strong { font-size: 13px; color: var(--navy); font-weight: 600; display: block; }
+  .pago-detail span { font-size: 12px; color: #666; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--navy); }
+  .form-group input, .form-group select, .form-group textarea { padding: 11px 13px; border: 1.5px solid #e8e8e8; border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--navy); background: #fafafa; transition: border-color 0.2s; outline: none; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); background: var(--white); }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+  .form-submit { width: 100%; margin-top: 22px; background: var(--navy); color: var(--white); border: none; cursor: pointer; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; padding: 16px; border-radius: 12px; transition: background 0.2s; }
+  .form-submit:hover { background: var(--navy-light); }
+  .form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .form-close-btn { width: 100%; margin-top: 10px; background: none; border: 1.5px solid #e8e8e8; cursor: pointer; font-size: 14px; color: #888; padding: 12px; border-radius: 12px; transition: all 0.2s; }
+  .form-close-btn:hover { background: #f5f5f5; }
+
+  /* SUCCESS */
+  .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 400; display: none; align-items: center; justify-content: center; }
+  .success-overlay.open { display: flex; }
+  .success-box { background: var(--white); border-radius: 20px; padding: 40px 28px; width: min(360px, 90vw); text-align: center; animation: popIn 0.3s ease; }
+  @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .success-icon { font-size: 56px; margin-bottom: 12px; }
+  .success-box h2 { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; color: var(--navy); margin-bottom: 8px; }
+  .success-box p { font-size: 14px; color: #777; line-height: 1.6; margin-bottom: 22px; }
+  .success-data { background: #f8f8f6; border-radius: 12px; padding: 14px 16px; text-align: left; margin-bottom: 20px; }
+  .success-data p { font-size: 13px; color: #555; margin-bottom: 4px; }
+  .success-data span { font-weight: 600; color: var(--navy); }
+  .success-new { width: 100%; padding: 14px; background: var(--navy); color: var(--white); border: none; border-radius: 12px; cursor: pointer; font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 2px; transition: background 0.2s; }
+  .success-new:hover { background: var(--navy-light); }
+
+  /* FOOTER */
+  footer { background: var(--navy); padding: 30px 20px; text-align: center; }
+  footer .f-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 5px; color: var(--white); margin-bottom: 8px; }
+  footer p { font-size: 12px; color: var(--text-muted); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--navy); color: var(--white); padding: 12px 22px; border-radius: 30px; font-size: 13px; font-weight: 500; z-index: 500; transition: transform 0.3s ease; pointer-events: none; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-menu" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </div>
+    <a class="nav-logo" href="#">
+      NSTUDIOS
+      <span class="logo-sub">collection</span>
+    </a>
+    <div class="nav-icons">
+      <button onclick="toggleCart()" title="Carrito">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-badge" id="cart-badge">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-placeholder">
+      <span class="hero-models">NSTUDIOS</span>
+    </div>
+    <div class="hero-text">
+      <span class="hero-tag">Nueva colección · 2025</span>
+      <h1 class="hero-title">Denim &amp;<br>Streetwear</h1>
+    </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <div class="section-header">
+    <span class="section-title">Productos</span>
+  </div>
+  <div class="products" id="products-grid"></div>
+
+  <footer>
+    <div class="f-logo">NSTUDIOS</div>
+    <p>© 2025 · Todos los derechos reservados</p>
+  </footer>
+</div>
+
+<!-- DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <span class="drawer-logo">NSTUDIOS</span>
+    <button class="drawer-close" onclick="toggleDrawer()">✕</button>
+  </div>
+  <nav class="drawer-nav">
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>Inicio</a>
+    <a href="#"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Buscar</a>
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.18 1.2 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.56-.56a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>Contacto</a>
+  </nav>
+</div>
+
+<!-- CART PANEL -->
+<div class="drawer-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-head">
+    <h2>Tu carrito</h2>
+    <button class="cart-close" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <p>Tu carrito está vacío</p>
+    </div>
+  </div>
+  <div class="cart-foot" id="cart-foot" style="display:none;">
+    <div class="cart-subtotal">
+      <span>Total</span>
+      <strong id="cart-total">$0</strong>
+    </div>
+    <button class="checkout-btn" onclick="openCheckout()">FINALIZAR COMPRA</button>
+  </div>
+</div>
+
+<!-- CHECKOUT FORM -->
+<div class="form-overlay" id="form-overlay">
+  <div class="form-sheet">
+    <div class="form-handle"></div>
+    <div class="form-title">Datos del comprador</div>
+    <div class="form-subtitle">Completá tus datos para confirmar el pedido</div>
+
+    <div class="form-order-summary" id="form-summary"></div>
+
+    <!-- INFO DE PAGO -->
+    <div class="pago-info">
+      <h4>Métodos de pago disponibles</h4>
+      <div class="pago-opcion">
+        <span class="pago-icon">🏦</span>
+        <div class="pago-detail">
+          <strong>Transferencia bancaria</strong>
+          <span>Te enviamos los datos por email al confirmar</span>
+        </div>
+      </div>
+      <div class="pago-opcion">
+        <span class="pago-icon">💵</span>
+        <div class="pago-detail">
+          <strong>Efectivo</strong>
+          <span>Coordinamos la entrega en persona</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group"><label>Nombre *</label><input type="text" id="f-nombre" placeholder="Tu nombre"></div>
+      <div class="form-group"><label>Apellido *</label><input type="text" id="f-apellido" placeholder="Tu apellido"></div>
+      <div class="form-group full"><label>Email *</label><input type="email" id="f-email" placeholder="tu@email.com"></div>
+      <div class="form-group full"><label>Teléfono *</label><input type="tel" id="f-telefono" placeholder="+54 11 0000-0000"></div>
+      <div class="form-group full">
+        <label>Método de pago *</label>
+        <select id="f-pago">
+          <option value="">-- Seleccioná --</option>
+          <option value="Transferencia bancaria">🏦 Transferencia bancaria</option>
+          <option value="Efectivo">💵 Efectivo</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Notas adicionales</label><textarea id="f-notas" placeholder="Horario preferido para coordinar entrega, preguntas, etc..."></textarea></div>
+    </div>
+
+    <button class="form-submit" id="form-submit-btn" onclick="submitOrder()">CONFIRMAR PEDIDO</button>
+    <button class="form-close-btn" onclick="closeCheckout()">Cancelar</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box">
+    <div class="success-icon">🎉</div>
+    <h2>¡Pedido confirmado!</h2>
+    <p>Recibimos tu pedido. Te contactamos pronto para coordinar el pago y la entrega.</p>
+    <div class="success-data" id="success-data"></div>
+    <button class="success-new" onclick="resetAll()">SEGUIR COMPRANDO</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── EMAILJS INIT
+  emailjs.init('pJYPAQPO6pCrfvjY8');
+
+  const SERVICE_ID  = 'service_rcg9bbu';
+  const TEMPLATE_ID = 'template_2r165ov';
+
+  // ── PRODUCTOS
+  const PRODUCTS = [
+    { id:1, name:'Jean oversized',    price:50000, img: null },
+    { id:2, name:'Jean cargo denim',  price:70000, img: null },
+    { id:3, name:'Jean cargo negro',  price:55000, img: null },
+    { id:4, name:'Jean recto denim',  price:40000, img: null },
+    { id:5, name:'Jean recto denim',  price:40000, img: null },
+    { id:6, name:'Jean árbol',        price:80000, img: null },
+  ];
+
+  let cart = [];
+  const localQty = {};
+  PRODUCTS.forEach(p => localQty[p.id] = 1);
+
+  function fmt(n) { return '$' + n.toLocaleString('es-AR'); }
+
+  // ── RENDER PRODUCTS
+  function renderProducts() {
+    document.getElementById('products-grid').innerHTML = PRODUCTS.map(p => `
+      <div class="product-card">
+        <div class="product-img-wrap">
+          ${p.img
+            ? `<img src="${p.img}" alt="${p.name}">`
+            : `<div class="product-img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`}
+        </div>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-price">${fmt(p.price)}</div>
+          <div class="product-actions">
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
+              <span class="qty-num" id="qty-${p.id}">1</span>
+              <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
+            </div>
+            <button class="add-btn" id="addbtn-${p.id}" onclick="addToCart(${p.id})">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function changeQty(id, delta) {
+    localQty[id] = Math.max(1, (localQty[id] || 1) + delta);
+    document.getElementById('qty-' + id).textContent = localQty[id];
+  }
+
+  function addToCart(id) {
+    const product = PRODUCTS.find(p => p.id === id);
+    const qty = localQty[id] || 1;
+    const existing = cart.find(c => c.id === id);
+    if (existing) { existing.qty += qty; } else { cart.push({...product, qty}); }
+    updateCartUI();
+    showToast(product.name + ' agregado al carrito ✓');
+    const btn = document.getElementById('addbtn-' + id);
+    btn.textContent = '✓ Agregado';
+    btn.classList.add('added');
+    setTimeout(() => { btn.textContent = '+ Agregar'; btn.classList.remove('added'); }, 1500);
+  }
+
+  function updateCartUI() {
+    const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+    const count = cart.reduce((s, c) => s + c.qty, 0);
+    document.getElementById('cart-badge').textContent = count;
+
+    if (cart.length === 0) {
+      document.getElementById('cart-body').innerHTML = `
+        <div class="cart-empty">
+          <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <p>Tu carrito está vacío</p>
+        </div>`;
+      document.getElementById('cart-foot').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('cart-body').innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div class="cart-item-img">
+          ${item.img
+            ? `<img src="${item.img}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;">`
+            : `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>`}
+        </div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">${fmt(item.price)}</div>
+          <div class="cart-item-qty">
+            <button onclick="cartQty(${item.id},-1)">−</button>
+            <span>${item.qty}</span>
+            <button onclick="cartQty(${item.id},1)">+</button>
+          </div>
+        </div>
+        <button class="cart-remove" onclick="removeFromCart(${item.id})">✕</button>
+      </div>
+    `).join('');
+
+    document.getElementById('cart-total').textContent = fmt(total);
+    document.getElementById('cart-foot').style.display = 'block';
+  }
+
+  function cartQty(id, delta) {
+    const item = cart.find(c => c.id === id);
+    if (!item) return;
+    item.qty = Math.max(0, item.qty + delta);
+    if (item.qty === 0) cart = cart.filter(c => c.id !== id);
+    updateCartUI();
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(c => c.id !== id);
+    updateCartUI();
+  }
+
+  // ── DRAWER / CART PANEL
+  function toggleDrawer() {
+    document.getElementById('drawer').classList.toggle('open');
+    document.getElementById('drawer-overlay').classList.toggle('open');
+  }
+
+  function toggleCart() {
+    document.getElementById('cart-panel').classList.toggle('open');
+    document.getElementById('cart-overlay').classList.toggle('open');
+  }
+
+  // ── CHECKOUT
+  function openCheckout() {
+    if (cart.length === 0) return;
+    toggleCart();
+    const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+    document.getElementById('form-summary').innerHTML = `
+      <p>Resumen de tu pedido</p>
+      <div class="form-order-items">${cart.map(c => `${c.name} × ${c.qty} — ${fmt(c.price * c.qty)}`).join('<br>')}</div>
+      <div class="form-order-total"><span>Total</span><strong>${fmt(total)}</strong></div>
+    `;
+    document.getElementById('form-overlay').classList.add('open');
+  }
+
+  function closeCheckout() {
+    document.getElementById('form-overlay').classList.remove('open');
+  }
+
+  // ── SUBMIT CON EMAILJS
+  async function submitOrder() {
+    const nombre   = document.getElementById('f-nombre').value.trim();
+    const apellido = document.getElementById('f-apellido').value.trim();
+    const email    = document.getElementById('f-email').value.trim();
+    const telefono = document.getElementById('f-telefono').value.trim();
+    const pago     = document.getElementById('f-pago').value;
+    const notas    = document.getElementById('f-notas').value.trim();
+
+    if (!nombre || !apellido || !email || !telefono || !pago) {
+      showToast('⚠️ Completá todos los campos obligatorios (*)');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showToast('⚠️ Ingresá un email válido');
+      return;
+    }
+
+    const total    = cart.reduce((s, c) => s + c.price * c.qty, 0);
+    const orderId  = 'NS-' + Date.now().toString().slice(-6);
+    const orderLines = cart.map(c => `• ${c.name} × ${c.qty} = ${fmt(c.price * c.qty)}`).join('\n');
+    const fecha    = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+    const btn = document.getElementById('form-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'ENVIANDO...';
+
+    try {
+      await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+        order_id:       orderId,
+        fecha:          fecha,
+        buyer_name:     nombre + ' ' + apellido,
+        buyer_email:    email,
+        buyer_phone:    telefono,
+        payment_method: pago,
+        order_items:    orderLines,
+        order_total:    fmt(total),
+        notes:          notas || 'Sin notas',
+        to_email:       'Stickeriabymore@gmail.com',
+      });
+
+      closeCheckout();
+      document.getElementById('success-data').innerHTML = `
+        <p>N° de pedido: <span>${orderId}</span></p>
+        <p>Comprador: <span>${nombre} ${apellido}</span></p>
+        <p>Email: <span>${email}</span></p>
+        <p>Teléfono: <span>${telefono}</span></p>
+        <p>Pago: <span>${pago}</span></p>
+        <p>Total: <span>${fmt(total)}</span></p>
+      `;
+      document.getElementById('success-overlay').classList.add('open');
+      cart = [];
+      updateCartUI();
+
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      showToast('❌ Error al enviar. Revisá tu conexión e intentá de nuevo.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'CONFIRMAR PEDIDO';
+    }
+  }
+
+  function resetAll() {
+    document.getElementById('success-overlay').classList.remove('open');
+    ['f-nombre','f-apellido','f-email','f-telefono','f-notas'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f-pago').value = '';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  renderProducts();
+</script>
+</body>
+</html>
